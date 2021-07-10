@@ -1,0 +1,44 @@
+version: "3.8"
+services:
+  mongo:
+    image: mongo:4.4
+    container_name: "ms_transactions_mongo"
+    environment:
+      MONGO_INITDB_DATABASE: "ms_transactions"
+      MONGO_INITDB_ROOT_USERNAME: "root"
+      MONGO_INITDB_ROOT_PASSWORD: "1q2w3e4r"
+    volumes:
+      - .docker-volumes/mongo:/data/db
+    ports:
+      - "27017:27017"
+
+  cache:
+    image: redis:6.2-alpine
+    container_name: "ms_transactions_redis"
+    ports:
+      - "6380:6379"
+    volumes:
+      - .docker-volumes/redis:/data
+
+  app:
+    image: ms_transactions_app:latest
+    build:
+      context: ./
+      dockerfile: .setup/build/php/Dockerfile
+    container_name: "ms_transactions_app"
+    command: "php -S 0.0.0.0:8012 -t /var/www/html/public"
+    ports:
+      - "8012:8012"
+    links:
+      - mongo
+      - cache
+    volumes:
+      - ./:/var/www/html
+    depends_on:
+      - mongo
+      - cache
+
+networks:
+  default:
+    external: true
+    name: microservice_external
