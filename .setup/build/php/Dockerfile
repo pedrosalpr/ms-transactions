@@ -13,6 +13,7 @@ RUN apk add --no-cache \
         curl \
         openssl \
         libxml2-dev
+RUN apk add libressl-dev
 
 RUN pecl install redis
 RUN pecl install mongodb && docker-php-ext-enable mongodb
