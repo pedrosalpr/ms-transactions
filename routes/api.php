@@ -1,7 +1,7 @@
 <?php
 
+use App\Http\Controllers\API\AccountController;
 use App\Http\Controllers\API\TransactionController;
-use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -15,4 +15,8 @@ use Illuminate\Support\Facades\Route;
 |
 */
 
-
+Route::namespace('API')->group(function () {
+    Route::post('/transfer', [TransactionController::class, 'transfer']);
+    Route::post('/deposit', [TransactionController::class, 'deposit']);
+    Route::get('/balance/{id}', [AccountController::class, 'balance'])->where(['id' => '[0-9]+']);
+});
