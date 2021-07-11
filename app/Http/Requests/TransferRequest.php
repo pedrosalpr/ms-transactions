@@ -25,8 +25,8 @@ class TransferRequest extends FormRequest
     {
         return [
             'value' => 'required|numeric|min:0|not_in:0',
-            'payer' => 'required|int|min:0|not_in:0',
-            'payee' => 'required|int|min:0|not_in:0|different:payer',
+            'payer' => 'required|int|min:1',
+            'payee' => 'required|int|min:1|different:payer',
         ];
     }
 }

@@ -4,9 +4,7 @@ declare(strict_types=1);
 
 namespace App\Entities\Users;
 
-use App\Contracts\Users\UserContract;
-
-class User implements UserContract
+class User
 {
 
     private $id;
@@ -14,11 +12,6 @@ class User implements UserContract
     private $email;
     private $cpfCnpj;
     private $userType;
-
-    public function toArray()
-    {
-        return [];
-    }
 
     public static function fromArray(array $data): self
     {

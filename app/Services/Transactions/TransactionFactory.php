@@ -48,8 +48,7 @@ class TransactionFactory
     {
         return [
             'userClient' => resolve(UserClientApi::class),
-            'authorizatorClient' => resolve(AuthorizerClientApi::class),
-            'notifyClientApi' => resolve(NotifyClientApi::class)
+            'authorizatorClient' => resolve(AuthorizerClientApi::class)
         ];
     }
 }

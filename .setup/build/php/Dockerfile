@@ -12,8 +12,14 @@ RUN apk add --no-cache \
         $PHPIZE_DEPS \
         curl \
         openssl \
-        libxml2-dev
+        git \
+        libxml2-dev \
+        libxslt-dev
+
 RUN apk add libressl-dev
+
+RUN apk add gnu-libiconv=1.15-r3 --update-cache --repository http://dl-cdn.alpinelinux.org/alpine/v3.13/community/ --allow-untrusted
+ENV LD_PRELOAD /usr/lib/preloadable_libiconv.so
 
 RUN pecl install redis
 RUN pecl install mongodb && docker-php-ext-enable mongodb
@@ -24,6 +30,7 @@ RUN docker-php-ext-install bcmath
 RUN docker-php-ext-install ctype
 RUN docker-php-ext-install fileinfo
 RUN docker-php-ext-install tokenizer
+RUN docker-php-ext-install xsl
 
 # Set Timezone
 RUN ln -snf /usr/share/zoneinfo/$TZ /etc/localtime && echo $TZ > /etc/timezone

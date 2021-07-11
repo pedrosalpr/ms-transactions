@@ -6,10 +6,12 @@ use App\Entities\Users\User;
 use App\Exceptions\Gateways\AuthorizathorException;
 use App\Exceptions\Gateways\ClientApiException;
 use App\Exceptions\Gateways\NotificationException;
+use App\Jobs\TransactionNotifierJob;
 use App\Models\Transaction as TransactionModel;
 use App\Services\Gateways\Authorizathor\AuthorizerClientApi;
 use App\Services\Gateways\Notification\NotifyClientApi;
 use App\Services\Gateways\Users\UserClientApi;
+
 
 abstract class Transaction
 {
@@ -28,13 +30,6 @@ abstract class Transaction
     protected AuthorizerClientApi $authorizatorClient;
 
     /**
-     * Notification service
-     *
-     * @var NotifyClientApi
-     */
-    protected NotifyClientApi $notifyClientApi;
-
-    /**
      * Message to be sent
      *
      * @var string
@@ -46,16 +41,13 @@ abstract class Transaction
      *
      * @param UserClientApi $userClient
      * @param AuthorizerClientApi $authorizatorClient
-     * @param NotifyClientApi $notifyClientApi
      */
     public function __construct(
         UserClientApi $userClient,
-        AuthorizerClientApi $authorizatorClient,
-        NotifyClientApi $notifyClientApi
+        AuthorizerClientApi $authorizatorClient
     ) {
         $this->userClient = $userClient;
         $this->authorizatorClient = $authorizatorClient;
-        $this->notifyClientApi = $notifyClientApi;
     }
 
     abstract protected function setMessage(float $value);
@@ -74,23 +66,15 @@ abstract class Transaction
     }
 
     /**
-     * Notify user of transaction
+     * Dispatch job notify user of transaction
      *
      * @param User $user User to be notified
      * @param string $message Message to be sent
      * @return void
-     * @throws NotificationException If notification was not sent
-     * @throws ClientApiException If notification resource is not found
      */
     protected function notify(User $user, string $message)
     {
-        try {
-            if (!$this->notifyClientApi->notify($user, $message)) {
-                throw NotificationException::unavailable();
-            }
-        } catch (NotificationException | ClientApiException $ex) {
-            // Send notification for queue
-        }
+        TransactionNotifierJob::dispatch($user, $message);
     }
 
     /**

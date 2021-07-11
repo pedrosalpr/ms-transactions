@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<phpdox
+    xmlns="http://xml.phpdox.net/config">
+    <project name="Microservice Transaction" source="${basedir}/app" workdir="${basedir}/doc/build/phpdox/api/xml">
+        <collector backend="parser" />
+        <generator output="${basedir}/doc/build/phpdox/api">
+            <!-- <build engine="html" output="html"/> -->
+            <enrich base="${basedir}/doc/build/phpdox/logs">
+                <source type="build" />
+                <source type="git">
+                    <history enabled="true" limit="15" />
+                </source>
+                <source type="checkstyle" >
+                    <file name="checkstyle.xml" />
+                </source>
+                <!-- alternative checkstyler to support phpcs xml output -->
+                <source type="phpcs" />
+                <source type="pmd" />
+                <source type="phploc" />
+                <source type="phpunit">
+                    <coverage path="${basedir}/doc/build/phpdox/logs/coverage/xml" />
+                    <!-- @path - the directory where the xml code coverage report can be found -->
+                </source>
+            </enrich>
+            <build engine="html" enabled="true" output="html">
+                <template dir="${phpDox.home}/templates/html" />
+                <file extension="xhtml" />
+            </build>
+            <build engine="xml" enabled="true" output="xml" />
+        </generator>
+    </project>
+</phpdox>

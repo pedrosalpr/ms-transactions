@@ -12,5 +12,17 @@ Homestead.yaml
 npm-debug.log
 yarn-error.log
 /.idea
-/.vscode
+
+# vscode
+.vscode/
+
+# Debug
+/storage/debugbar/
+
+# Reports
+doc/
+scripts/*.phar
+.phpdoc/
+
+# docker
 /.docker-volumes

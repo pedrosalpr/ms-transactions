@@ -33,8 +33,10 @@ class TransactionController extends Controller
             $transaction = TransactionFactory::getTransactionType(TransactionType::transfer());
             $transaction->transact($data);
             return response()->json(["message" => $transaction->getMessage()], Response::HTTP_OK);
-        } catch (ClientApiException | AuthorizathorException | TransferException $ex) {
+        } catch (AuthorizathorException | TransferException $ex) {
             return response()->json($ex->report(), Response::HTTP_BAD_REQUEST);
+        } catch (ClientApiException  $ex) {
+            return response()->json($ex->report(), Response::HTTP_NOT_FOUND);
         }
     }
 
@@ -53,8 +55,10 @@ class TransactionController extends Controller
             $transaction = TransactionFactory::getTransactionType(TransactionType::deposit());
             $transaction->transact($data);
             return response()->json(["message" => $transaction->getMessage()], Response::HTTP_OK);
-        } catch (ClientApiException | AuthorizathorException $ex) {
+        } catch (AuthorizathorException $ex) {
             return response()->json($ex->report(), Response::HTTP_BAD_REQUEST);
+        } catch (ClientApiException  $ex) {
+            return response()->json($ex->report(), Response::HTTP_NOT_FOUND);
         }
     }
 }

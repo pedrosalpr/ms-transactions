@@ -2,7 +2,6 @@
 
 namespace App\Services\Gateways\Users;
 
-use App\Contracts\Users\UserContract;
 use App\Entities\Users\User;
 use App\Enums\Config\Routes;
 use App\Services\Gateways\Api\ClientApi;
@@ -32,7 +31,7 @@ class UserClientApi
      *
      * @return User
      */
-    public function findUser(int $userId): UserContract
+    public function findUser(int $userId): User
     {
         $response = $this->client->get($this->uri . "/{$userId}");
         $this->processResponse($response, self::RESOURCE, $userId);

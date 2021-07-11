@@ -24,7 +24,7 @@ class AccountController extends Controller
             $balance = (new AccountBalance($id))->balance();
             return response()->json(['value' => $balance], Response::HTTP_OK);
         } catch (ClientApiException $ex) {
-            return response()->json($ex->report(), Response::HTTP_BAD_REQUEST);
+            return response()->json($ex->report(), Response::HTTP_NOT_FOUND);
         }
     }
 }
