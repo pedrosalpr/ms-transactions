@@ -19,11 +19,7 @@ class DepositTest extends TestCase
 {
     use DatabaseMigrations;
 
-    /**
-     *
-     *
-     * @return void
-     */
+
     public function testShouldDepositMoneyIntoTheUsersAccount()
     {
         $payeeId = 10;
@@ -44,6 +40,21 @@ class DepositTest extends TestCase
         ]);
     }
 
+    public function testShouldDepositNotAuthorized()
+    {
+        $payeeId = 10;
+        $value = 10;
+        $data = [
+            'payee' => $payeeId,
+            'value' => $value
+        ];
+
+        $this->mockUser($payeeId, UserType::COMMON);
+        $this->mockNotAuthorized();
+        $response = $this->postJson(Routes::DEPOSIT, $data);
+        $response->assertStatus(Response::HTTP_BAD_REQUEST);
+    }
+
     private function mockUser(int $id, int $userType)
     {
         $userFactory = (new UserFactory)->make(['id' => $id, 'userType' => $userType]);
@@ -56,6 +67,13 @@ class DepositTest extends TestCase
     {
         $this->mock(AuthorizerClientApi::class, function (MockInterface $mock) {
             $mock->shouldReceive('authorizathor')->once()->andReturn(true);
+        });
+    }
+
+    private function mockNotAuthorized()
+    {
+        $this->mock(AuthorizerClientApi::class, function (MockInterface $mock) {
+            $mock->shouldReceive('authorizathor')->andReturn(false);
         });
     }
 }

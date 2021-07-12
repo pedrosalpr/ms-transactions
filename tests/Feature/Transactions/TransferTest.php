@@ -21,6 +21,29 @@ class TransferTest extends TestCase
 {
     use DatabaseMigrations;
 
+    public function testShouldTransferNotAuthorized()
+    {
+        $payeeId = 10;
+        $payerId = 5;
+        $value = 2;
+        $data = [
+            'payer' => $payerId,
+            'payee' => $payeeId,
+            'value' => $value
+        ];
+        $payerTransaction = (new TransactionDepositFactory)->create([
+            'user_id' => $payerId,
+            'value' => 15
+        ]);
+        $userPayer = $this->mockUserPayer($payerId, UserType::COMMON);
+        $userPayee = $this->mockUserPayee($payeeId, UserType::SHOPKEEPER);
+        $this->mockNotAuthorized();
+        $this->mockNotifier();
+        $response = $this->postJson(Routes::TRANSFER, $data);
+        $response->assertStatus(Response::HTTP_BAD_REQUEST);
+        $response->assertJson(["message" => "Authorization not allowed"]);
+    }
+
     public function testShouldTransferValueFromCommonUserToShopkeeperUser()
     {
         $payeeId = 10;
@@ -131,6 +154,13 @@ class TransferTest extends TestCase
     {
         $this->mock(AuthorizerClientApi::class, function (MockInterface $mock) {
             $mock->shouldReceive('authorizathor')->andReturn(true);
+        });
+    }
+
+    private function mockNotAuthorized()
+    {
+        $this->mock(AuthorizerClientApi::class, function (MockInterface $mock) {
+            $mock->shouldReceive('authorizathor')->andReturn(false);
         });
     }
 

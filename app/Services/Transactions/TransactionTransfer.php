@@ -25,6 +25,7 @@ class TransactionTransfer extends Transaction implements TransactionContract
     {
         $this->checkPayerTransfer();
         $this->checkPayerBalance($value);
+        $this->checkAuthorizathor();
         $this->transfer($value);
         $this->setMessage($value);
         $this->notify($this->userPayee, $this->getMessage());
