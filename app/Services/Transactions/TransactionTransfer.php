@@ -21,7 +21,7 @@ class TransactionTransfer extends Transaction implements TransactionContract
      * @param float $value The data that was sent
      * @return void
      */
-    public function transact(float $value)
+    public function transact(float $value): void
     {
         $this->checkPayerTransfer();
         $this->checkPayerBalance($value);

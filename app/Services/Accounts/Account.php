@@ -4,12 +4,21 @@ namespace App\Services\Accounts;
 
 use App\Entities\Users\User;
 use App\Repositories\Account as RepositoriesAccount;
-use App\Services\Gateways\Users\UserClientApi;
 
 abstract class Account
 {
+    /**
+     * Entity User
+     *
+     * @var User
+     */
     protected $user;
 
+    /**
+     * Repository Account
+     *
+     * @var RepositoriesAccount
+     */
     protected $account;
 
     public function __construct(User $user)

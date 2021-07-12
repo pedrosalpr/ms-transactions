@@ -6,7 +6,7 @@ use App\Entities\Users\User;
 
 interface TransactionContract
 {
-    public function transact(float $value);
+    public function transact(float $value): void;
 
     public function getMessage(): string;
 

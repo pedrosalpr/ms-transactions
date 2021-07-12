@@ -25,8 +25,16 @@ abstract class Transaction
      */
     protected string $message;
 
+    /**
+     * Entity User Payee
+     * @var User
+     */
     protected User $userPayee;
 
+    /**
+     * Entity User Payer
+     * @var User
+     */
     protected User $userPayer;
 
     /**

@@ -12,6 +12,12 @@ use Illuminate\Support\Str;
 
 class TransactionDeposit extends Transaction implements TransactionContract
 {
+    /**
+     * Make the deposit transaction
+     *
+     * @param float $value The data that was sent
+     * @return void
+     */
     public function transact(float $value): void
     {
         $this->checkAuthorizathor();
@@ -20,6 +26,12 @@ class TransactionDeposit extends Transaction implements TransactionContract
         $this->notify($this->userPayee, $this->getMessage());
     }
 
+    /**
+     * Made the deposit in user account
+     *
+     * @param float $value
+     * @return void
+     */
     private function deposit(float $value): void
     {
         $data = [
