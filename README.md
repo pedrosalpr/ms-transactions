@@ -1,62 +1,131 @@
-<p align="center"><a href="https://laravel.com" target="_blank"><img src="https://raw.githubusercontent.com/laravel/art/master/logo-lockup/5%20SVG/2%20CMYK/1%20Full%20Color/laravel-logolockup-cmyk-red.svg" width="400"></a></p>
+# Transactions Microservice
 
-<p align="center">
-<a href="https://travis-ci.org/laravel/framework"><img src="https://travis-ci.org/laravel/framework.svg" alt="Build Status"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/dt/laravel/framework" alt="Total Downloads"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/v/laravel/framework" alt="Latest Stable Version"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/l/laravel/framework" alt="License"></a>
-</p>
+Transaction microservice is a service to make deposit and transfer transactions between users
 
-## About Laravel
+## Services
 
-Laravel is a web application framework with expressive, elegant syntax. We believe development must be an enjoyable and creative experience to be truly fulfilling. Laravel takes the pain out of development by easing common tasks used in many web projects, such as:
+### Endpoints
 
-- [Simple, fast routing engine](https://laravel.com/docs/routing).
-- [Powerful dependency injection container](https://laravel.com/docs/container).
-- Multiple back-ends for [session](https://laravel.com/docs/session) and [cache](https://laravel.com/docs/cache) storage.
-- Expressive, intuitive [database ORM](https://laravel.com/docs/eloquent).
-- Database agnostic [schema migrations](https://laravel.com/docs/migrations).
-- [Robust background job processing](https://laravel.com/docs/queues).
-- [Real-time event broadcasting](https://laravel.com/docs/broadcasting).
+There are only three endpoints:
 
-Laravel is accessible, powerful, and provides tools required for large, robust applications.
+- Transfer between users
+- Make deposit
+- Return balance
 
-## Learning Laravel
+## Development
 
-Laravel has the most extensive and thorough [documentation](https://laravel.com/docs) and video tutorial library of all modern web application frameworks, making it a breeze to get started with the framework.
+### Setup
 
-If you don't feel like reading, [Laracasts](https://laracasts.com) can help. Laracasts contains over 1500 video tutorials on a range of topics including Laravel, modern PHP, unit testing, and JavaScript. Boost your skills by digging into our comprehensive video library.
+To run the project, run the following commands:
 
-## Laravel Sponsors
+```bash
+make docker-up
+make docker-install
+make docker-test
+```
 
-We would like to extend our thanks to the following sponsors for funding Laravel development. If you are interested in becoming a sponsor, please visit the Laravel [Patreon page](https://patreon.com/taylorotwell).
+Go to url [http://ms_transactions_app:8012](http://ms_transactions_app:8012)
 
-### Premium Partners
+## Debugging
 
-- **[Vehikl](https://vehikl.com/)**
-- **[Tighten Co.](https://tighten.co)**
-- **[Kirschbaum Development Group](https://kirschbaumdevelopment.com)**
-- **[64 Robots](https://64robots.com)**
-- **[Cubet Techno Labs](https://cubettech.com)**
-- **[Cyber-Duck](https://cyber-duck.co.uk)**
-- **[Many](https://www.many.co.uk)**
-- **[Webdock, Fast VPS Hosting](https://www.webdock.io/en)**
-- **[DevSquad](https://devsquad.com)**
-- **[Curotec](https://www.curotec.com/services/technologies/laravel/)**
-- **[OP.GG](https://op.gg)**
+### Linters
 
-## Contributing
+There are 2 linters you can run in development mode to check the source code: `Code Sniffer` and `Mess Detector`
 
-Thank you for considering contributing to the Laravel framework! The contribution guide can be found in the [Laravel documentation](https://laravel.com/docs/contributions).
+### Code Sniffer
 
-## Code of Conduct
+Detects coding style issues.
 
-In order to ensure that the Laravel community is welcoming to all, please review and abide by the [Code of Conduct](https://laravel.com/docs/contributions#code-of-conduct).
+There is a configuration file called `phpcs.xml` which has all the Code Sniffer settings.
 
-## Security Vulnerabilities
+You can run via composer:
 
-If you discover a security vulnerability within Laravel, please send an e-mail to Taylor Otwell via [taylor@laravel.com](mailto:taylor@laravel.com). All security vulnerabilities will be promptly addressed.
+```bash
+composer phplint-cs
+```
 
-## License
+Or by Makefile
 
-The Laravel framework is open-sourced software licensed under the [MIT license](https://opensource.org/licenses/MIT).
+```bash
+make docker-phplint-cs
+```
+
+This script runs only in the `./app` directory, applying the `PSR-2` style.
+
+### Mess Detector
+
+Detects violations via static code analysis.
+
+There is a configuration file called `phpmd.xml` which has all the Code Sniffer settings.
+
+You can run via composer:
+
+```bash
+composer phplint-md
+```
+
+Or by Makefile
+
+```bash
+make docker-phplint-md
+```
+
+This script runs only in the `./app` directory, applying the settings from the file.
+
+## Reports and Metrics
+
+### Dox Report
+
+There are a set of scripts that are run to generate the PHP Dox report.
+
+The intent is to generate project documentation using the following tools
+
+- PHP Loc
+- PHP Unit
+- PHP Mess Detector
+- PHP Checkstyle
+- PHP CodeSniffer
+
+You can run it via composer to generate the report:
+
+```bash
+composer php-dox-full
+```
+
+### PHP Metrics Report
+
+Provides metrics about the project and PHP classes in an HTML report.
+
+You can run it via composer to generate the report:
+
+```bash
+composer php-metrics
+```
+
+### PHP Doc Report
+
+It is an application that is able to parse PHP source code and DocBlock comments to generate a complete set of Transaction Microservice Documentation.
+
+You can run it via composer to generate the report:
+
+```bash
+composer php-doc
+```
+
+However, it is necessary to download the file [`phpDocumentor.phar`](http://phpdoc.org/phpDocumentor.phar) and place it in the root of the project.
+
+### Report
+
+You can generate the complete report using the command via composer
+
+```bash
+composer php-report
+```
+
+Or by Makefile
+
+```bash
+make docker-phpreport
+```
+
+To access you will need to get the absolute path of the `index.html` file that is inside the `doc/build/` folder and put it in the browser.

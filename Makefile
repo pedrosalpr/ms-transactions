@@ -24,3 +24,12 @@ docker-test:
 
 docker-clear:
 	docker exec $(CONTAINER_NAME) sh -c "php artisan optimize:clear && php artisan debugbar:clear"
+
+docker-phplint-cs:
+	docker exec $(CONTAINER_NAME) composer phplint-cs
+
+docker-phplint-md:
+	docker exec $(CONTAINER_NAME) composer phplint-md
+
+docker-phpreport:
+	docker exec $(CONTAINER_NAME) composer php-report
