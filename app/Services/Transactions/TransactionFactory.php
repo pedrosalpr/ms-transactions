@@ -47,7 +47,6 @@ class TransactionFactory
     private static function getParameters(): array
     {
         return [
-            'userClient' => resolve(UserClientApi::class),
             'authorizatorClient' => resolve(AuthorizerClientApi::class)
         ];
     }

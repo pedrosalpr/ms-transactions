@@ -3,13 +3,17 @@
 namespace App\Http\Controllers\API;
 
 use App\Entities\Transactions\TransactionType;
+use App\Entities\Users\User;
 use App\Exceptions\Gateways\AuthorizathorException;
 use App\Exceptions\Gateways\ClientApiException;
 use App\Exceptions\Transactions\TransferException;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\DepositRequest;
 use App\Http\Requests\TransferRequest;
+use App\Services\Gateways\Users\UserClientApi;
 use App\Services\Transactions\TransactionFactory;
+use App\Services\Users\UserPayee;
+use App\Services\Users\UserPayer;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Response;
 
@@ -31,7 +35,9 @@ class TransactionController extends Controller
         try {
             $data = $request->validated();
             $transaction = TransactionFactory::getTransactionType(TransactionType::transfer());
-            $transaction->transact($data);
+            $transaction->setUserPayer($this->getUserPayerEntity($data['payer']));
+            $transaction->setUserPayee($this->getUserPayeeEntity($data['payee']));
+            $transaction->transact($data['value']);
             return response()->json(["message" => $transaction->getMessage()], Response::HTTP_OK);
         } catch (AuthorizathorException | TransferException $ex) {
             return response()->json($ex->report(), Response::HTTP_BAD_REQUEST);
@@ -53,12 +59,25 @@ class TransactionController extends Controller
         try {
             $data = $request->validated();
             $transaction = TransactionFactory::getTransactionType(TransactionType::deposit());
-            $transaction->transact($data);
+            $transaction->setUserPayee($this->getUserPayeeEntity($data['payee']));
+            $transaction->transact($data['value']);
             return response()->json(["message" => $transaction->getMessage()], Response::HTTP_OK);
         } catch (AuthorizathorException $ex) {
             return response()->json($ex->report(), Response::HTTP_BAD_REQUEST);
         } catch (ClientApiException  $ex) {
             return response()->json($ex->report(), Response::HTTP_NOT_FOUND);
         }
+    }
+
+    private function getUserPayerEntity(int $payerId): User
+    {
+        $userPayer = resolve(UserPayer::class, [UserClientApi::class]);
+        return $userPayer->getEntity($payerId);
+    }
+
+    private function getUserPayeeEntity(int $payeeId): User
+    {
+        $userPayee = resolve(UserPayee::class, [UserClientApi::class]);
+        return $userPayee->getEntity($payeeId);
     }
 }

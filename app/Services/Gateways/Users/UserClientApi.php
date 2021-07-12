@@ -4,6 +4,7 @@ namespace App\Services\Gateways\Users;
 
 use App\Entities\Users\User;
 use App\Enums\Config\Routes;
+use App\Exceptions\Gateways\ClientApiException;
 use App\Services\Gateways\Api\ClientApi;
 use App\Traits\Gateways\ClientApiResponseValidatorTrait;
 

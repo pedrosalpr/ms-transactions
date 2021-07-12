@@ -13,10 +13,25 @@ use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Http\Client\ConnectionException;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
+use Illuminate\Support\Facades\Log;
 
 class TransactionNotifierJob implements ShouldQueue
 {
     use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
+
+    /**
+     * The number of times the job may be attempted.
+     *
+     * @var int
+     */
+    public $tries = 5;
+
+    /**
+     * The number of seconds to wait before retrying the job.
+     *
+     * @var int
+     */
+    public $backoff = 3;
 
     private $user;
 
@@ -46,8 +61,10 @@ class TransactionNotifierJob implements ShouldQueue
             if (!$notifyClientApi->notify($this->user, $this->message)) {
                 throw NotificationException::unavailable();
             }
+            Log::info("Notification to user '{$this->user->getName()}' with message '{$this->message}' sent successfully;");
         } catch (ConnectionException | NotificationException | ClientApiException $ex) {
-            // Send notification for queue
+            Log::debug($ex->getMessage());
+            throw $ex;
         }
     }
 }

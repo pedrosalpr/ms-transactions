@@ -12,23 +12,22 @@ use Illuminate\Support\Str;
 
 class TransactionDeposit extends Transaction implements TransactionContract
 {
-    public function transact(array $data): void
+    public function transact(float $value): void
     {
-        $userPayee = $this->userClient->findUser($data['payee']);
-        $value = (float) Arr::get($data, 'value');
         $this->checkAuthorizathor();
-        $this->deposit($userPayee, $data);
+        $this->deposit($value);
         $this->setMessage($value);
-        $this->notify($userPayee, $this->getMessage());
+        $this->notify($this->userPayee, $this->getMessage());
     }
 
-    private function deposit(User $userPayee, array $data): void
+    private function deposit(float $value): void
     {
-        $data = array_merge($data, [
-            'user' => $userPayee,
+        $data = [
+            'value' => $value,
+            'user' => $this->userPayee,
             'time' => Carbon::now(),
             'transaction_id' => Str::orderedUuid()->toString(),
-        ]);
+        ];
         $deposit = Deposit::fromArray($data);
         TransactionModel::create($deposit->toArray());
     }

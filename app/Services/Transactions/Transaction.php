@@ -4,23 +4,12 @@ namespace App\Services\Transactions;
 
 use App\Entities\Users\User;
 use App\Exceptions\Gateways\AuthorizathorException;
-use App\Exceptions\Gateways\ClientApiException;
-use App\Exceptions\Gateways\NotificationException;
 use App\Jobs\TransactionNotifierJob;
-use App\Models\Transaction as TransactionModel;
 use App\Services\Gateways\Authorizathor\AuthorizerClientApi;
-use App\Services\Gateways\Notification\NotifyClientApi;
 use App\Services\Gateways\Users\UserClientApi;
-
 
 abstract class Transaction
 {
-    /**
-     * User service
-     *
-     * @var UserClientApi
-     */
-    protected UserClientApi $userClient;
 
     /**
      * Authorization service
@@ -36,21 +25,22 @@ abstract class Transaction
      */
     protected string $message;
 
+    protected User $userPayee;
+
+    protected User $userPayer;
+
     /**
-     * Abstract class of the transaction, which has authorization and notification service and the message to be returned
+     * Abstract class of the transaction, which has authorization and the message to be returned
      *
      * @param UserClientApi $userClient
      * @param AuthorizerClientApi $authorizatorClient
      */
-    public function __construct(
-        UserClientApi $userClient,
-        AuthorizerClientApi $authorizatorClient
-    ) {
-        $this->userClient = $userClient;
+    public function __construct(AuthorizerClientApi $authorizatorClient)
+    {
         $this->authorizatorClient = $authorizatorClient;
     }
 
-    abstract protected function setMessage(float $value);
+    abstract protected function setMessage(float $value): void;
 
     /**
      * Check if the service is authorized to proceed with the transaction
@@ -58,7 +48,7 @@ abstract class Transaction
      * @return void
      * @throws AuthorizathorException If the service is not authorized
      */
-    protected function checkAuthorizathor()
+    protected function checkAuthorizathor(): void
     {
         if (!$this->authorizatorClient->authorizathor()) {
             throw AuthorizathorException::notAllowed();
@@ -72,7 +62,7 @@ abstract class Transaction
      * @param string $message Message to be sent
      * @return void
      */
-    protected function notify(User $user, string $message)
+    protected function notify(User $user, string $message): void
     {
         TransactionNotifierJob::dispatch($user, $message);
     }
@@ -85,5 +75,15 @@ abstract class Transaction
     public function getMessage(): string
     {
         return $this->message;
+    }
+
+    public function setUserPayer(User $userPayer): void
+    {
+        $this->userPayer = $userPayer;
+    }
+
+    public function setUserPayee(User $userPayee): void
+    {
+        $this->userPayee = $userPayee;
     }
 }
