@@ -2,6 +2,7 @@
 
 namespace App\Services\Accounts;
 
+use App\Entities\Users\User;
 use App\Repositories\Account as RepositoriesAccount;
 use App\Services\Gateways\Users\UserClientApi;
 
@@ -11,10 +12,9 @@ abstract class Account
 
     protected $account;
 
-    public function __construct(int $id)
+    public function __construct(User $user)
     {
-        $userClient = resolve(UserClientApi::class);
-        $this->user = $userClient->findUser($id);
+        $this->user = $user;
         $this->account = new RepositoriesAccount($this->user);
     }
 }
