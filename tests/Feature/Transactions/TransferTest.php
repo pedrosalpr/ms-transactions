@@ -21,36 +21,6 @@ class TransferTest extends TestCase
 {
     use DatabaseMigrations;
 
-    private $userMock;
-    private $authorizatorMock;
-
-    protected function setUp(): void
-    {
-        parent::setUp();
-        // $this->userMock = $this->createMock(UserClientApi::class);
-        // $this->authorizatorMock = $this->createMock(AuthorizerClientApi::class);
-        // $this->userMock = Mockery::mock(UserClientApi::class);
-        // $this->authorizatorMock = Mockery::mock(AuthorizerClientApi::class);
-        // $this->authorizatorMock->shouldReceive('authorizathor')->andReturn(true);
-    }
-
-    /**
-     *
-     *
-     * @return void
-     */
-    // public function testShouldReturnMicroserviceUser()
-    // {
-    //     $userId = 1;
-    //     $userFactory = $this->mockUser($userId, UserType::COMMON);
-    //     $this->assertEquals($userFactory, $this->userMock->findUser($userId));
-    // }
-
-    /**
-     *
-     *
-     * @return void
-     */
     public function testShouldTransferValueFromCommonUserToShopkeeperUser()
     {
         $payeeId = 10;
@@ -65,35 +35,96 @@ class TransferTest extends TestCase
             'user_id' => $payerId,
             'value' => 15
         ]);
-        $this->mockUserApiClient($payerId);
-        $this->mockUserPayer($payerId);
-        $this->mockUserPayee($payeeId);
+        $userPayer = $this->mockUserPayer($payerId, UserType::COMMON);
+        $userPayee = $this->mockUserPayee($payeeId, UserType::SHOPKEEPER);
         $this->mockAuthorized();
         $this->mockNotifier();
         $response = $this->postJson(Routes::TRANSFER, $data);
         $response->assertStatus(Response::HTTP_OK);
     }
 
-    private function mockUserApiClient(int $id)
+    public function testShouldTransferValueFromCommonUserToOtherCommonUser()
     {
-        $userFactory = (new UserFactory)->make(['id' => $id, 'user_type' => UserType::COMMON]);
+        $payeeId = 10;
+        $payerId = 5;
+        $value = 2;
+        $data = [
+            'payer' => $payerId,
+            'payee' => $payeeId,
+            'value' => $value
+        ];
+        $payerTransaction = (new TransactionDepositFactory)->create([
+            'user_id' => $payerId,
+            'value' => 15
+        ]);
+        $userPayer = $this->mockUserPayer($payerId, UserType::COMMON);
+        $userPayee = $this->mockUserPayee($payeeId, UserType::COMMON);
+        $this->mockAuthorized();
+        $this->mockNotifier();
+        $response = $this->postJson(Routes::TRANSFER, $data);
+        $response->assertStatus(Response::HTTP_OK);
+        $response->assertJson(["message" => "Transfer in the value of {$value} successfully made"]);
+    }
+
+    public function testShouldReturnWithInsufficientBalance()
+    {
+        $payeeId = 10;
+        $payerId = 5;
+        $value = 2;
+        $data = [
+            'payer' => $payerId,
+            'payee' => $payeeId,
+            'value' => $value
+        ];
+        $userPayer = $this->mockUserPayer($payerId, UserType::COMMON);
+        $userPayee = $this->mockUserPayee($payeeId, UserType::SHOPKEEPER);
+        $this->mockAuthorized();
+        $this->mockNotifier();
+        $response = $this->postJson(Routes::TRANSFER, $data);
+        $response->assertStatus(Response::HTTP_BAD_REQUEST);
+        $response->assertJson(["message" => "Insufficient balance to transfer"]);
+    }
+
+    public function testShouldReturnThatThePayerIsNotAllowedToTransfer()
+    {
+        $payeeId = 10;
+        $payerId = 5;
+        $value = 2;
+        $data = [
+            'payer' => $payerId,
+            'payee' => $payeeId,
+            'value' => $value
+        ];
+        $payerTransaction = (new TransactionDepositFactory)->create([
+            'user_id' => $payerId,
+            'value' => 15
+        ]);
+        $userPayer = $this->mockUserPayer($payerId, UserType::SHOPKEEPER);
+        $userPayee = $this->mockUserPayee($payeeId, UserType::SHOPKEEPER);
+        $this->mockAuthorized();
+        $this->mockNotifier();
+        $response = $this->postJson(Routes::TRANSFER, $data);
+        $response->assertStatus(Response::HTTP_BAD_REQUEST);
+        $response->assertJson(["message" => "User {$userPayer->getName()} not allowed to execute the transfer"]);
+    }
+
+    private function mockUserPayer(int $id, int $userType)
+    {
+        $userFactory = (new UserFactory)->make(['id' => $id, 'user_type' => $userType]);
         $this->mock(UserClientApi::class, function (MockInterface $mock) use ($userFactory) {
             $mock->shouldReceive('findUser')->andReturn($userFactory);
         });
-    }
-
-    private function mockUserPayer(int $id)
-    {
-        $userFactory = (new UserFactory)->make(['id' => $id, 'user_type' => UserType::COMMON]);
         $mockUser = $this->createMock(UserPayer::class);
         $mockUser->method('getEntity')->with($this->equalTo($userFactory));
+        return $userFactory;
     }
 
-    private function mockUserPayee(int $id)
+    private function mockUserPayee(int $id, int $userType)
     {
-        $userFactory = (new UserFactory)->make(['id' => $id, 'user_type' => UserType::SHOPKEEPER]);
+        $userFactory = (new UserFactory)->make(['id' => $id, 'user_type' => $userType]);
         $mockUser = $this->createMock(UserPayee::class);
         $mockUser->method('getEntity')->with($this->equalTo($userFactory));
+        return $userFactory;
     }
 
     private function mockAuthorized()

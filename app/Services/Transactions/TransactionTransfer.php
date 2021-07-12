@@ -39,7 +39,7 @@ class TransactionTransfer extends Transaction implements TransactionContract
     private function checkPayerTransfer()
     {
         if ($this->userPayer->getUserType() == UserType::SHOPKEEPER) {
-            throw TransferException::userNotAllowed($this->userPayee->getName());
+            throw TransferException::userNotAllowed($this->userPayer->getName());
         }
     }
 
